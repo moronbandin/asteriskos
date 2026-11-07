@@ -1,0 +1,42 @@
+---
+import Base from "../layouts/Base.astro";
+import { getCollection, render } from "astro:content";
+const all = (await getCollection("saidas")).sort((a, b) => a.data.orde - b.data.orde);
+const R = new Map(await Promise.all(all.map(async (e) => [e.id, (await render(e)).Content] as const)));
+const viaxes = all.filter((e) => e.data.tipo === "viaxe");
+const saidas = all.filter((e) => e.data.tipo === "saida");
+---
+<Base title="Viaxe e saídas">
+  <div class="stack" style="gap:32px">
+    <div class="big-hello"><span class="eyebrow">Fóra da aula</span><h1>Viaxe e saídas</h1></div>
+    {viaxes.map((e) => {
+      const C = R.get(e.id)!;
+      return (
+        <section class="hero c-sun" style="gap:14px">
+          <span class="small" style="font-weight:700">Viaxe de estudos{e.data.cando ? `, ${e.data.cando}` : ""}</span>
+          <h1>{e.data.titulo}</h1>
+          {e.data.para && <span class="pill" style="align-self:flex-start;background:var(--card);color:var(--ink)">{e.data.para}</span>}
+          <div class="prose" style="color:var(--ink)"><C /></div>
+        </section>
+      );
+    })}
+    <section class="stack-sm">
+      <h2>Saídas deste curso</h2>
+      {saidas.length === 0 ? <div class="empty">Aínda non hai saídas programadas.</div> : (
+        <div class="grid">
+          {saidas.map((e) => {
+            const C = R.get(e.id)!;
+            return (
+              <article class="card stack-sm">
+                <span class="eyebrow">{e.data.cando || "Data por confirmar"}</span>
+                <h3>{e.data.titulo}</h3>
+                {e.data.para && <span class="pill line" style="align-self:flex-start">{e.data.para}</span>}
+                <div class="small prose"><C /></div>
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  </div>
+</Base>

@@ -1,0 +1,30 @@
+---
+// Lista de deberes. As datas relativas ("para mañá") e o "feito" calcúlanse no navegador.
+import type { CollectionEntry } from "astro:content";
+import Icon from "./Icon.astro";
+import { iso, isExternal, u } from "../lib/util";
+interface Props { items: CollectionEntry<"deberes">[]; mats: Map<string, CollectionEntry<"materias">>; showGroup?: boolean }
+const { items, mats, showGroup = true } = Astro.props;
+---
+<div class="list tasks" data-tasks>
+  {items.map((d) => (
+    <div class="task" data-task={d.id} data-due={iso(d.data.data)} data-groups={d.data.grupos.join(" ")}>
+      <button type="button" class="check" data-done={d.id} aria-pressed="false" aria-label={`Marcar «${d.data.titulo}» como feito`}>
+        <Icon name="check" size={16} />
+      </button>
+      <div class="min0 stack-sm" style="gap:4px">
+        <div class="row" style="gap:8px">
+          {showGroup && d.data.grupos.map((g) => mats.get(g) && <span class={`pill c-${mats.get(g)!.data.cor}`}>{mats.get(g)!.data.nome}</span>)}
+          <span class="due muted" data-due-label>{d.data.data ? iso(d.data.data) : "Sen data"}</span>
+        </div>
+        <div class="tt" style="font-weight:700">{d.data.titulo}</div>
+        {d.body?.trim() && <div class="small muted">{d.body.trim()}</div>}
+        {d.data.ligazon && (
+          <a class="small" style="color:var(--accent);font-weight:700" href={isExternal(d.data.ligazon) ? d.data.ligazon : u(d.data.ligazon)}
+            {...(isExternal(d.data.ligazon) ? { target: "_blank", rel: "noopener noreferrer" } : {})}>Abrir o material →</a>
+        )}
+      </div>
+    </div>
+  ))}
+  <p class="small muted" data-empty hidden>Non hai nada pendente.</p>
+</div>

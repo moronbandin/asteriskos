@@ -1,0 +1,14 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import { TIPOS } from "../content.config";
+---
+<Base title="Gardado">
+  <div class="stack" style="gap:24px;max-width:760px">
+    <div class="big-hello"><span class="eyebrow">Gardado</span><h1>O teu caixón.</h1></div>
+    <p class="muted">Os materiais que gardaches co corazón. Quedan neste dispositivo e neste navegador: non fai falta conta.</p>
+    <div class="empty" data-saved-empty>Aínda non gardaches nada. Toca o corazón dun material para telo aquí a man.</div>
+    <div class="card" style="padding-block:6px" data-saved-list hidden><div class="list"></div></div>
+    {Object.keys(TIPOS).map((k) => <template data-icon={k}><Icon name={k} /></template>)}
+  </div>
+</Base>

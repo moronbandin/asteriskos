@@ -1,0 +1,23 @@
+---
+import Base from "../../layouts/Base.astro";
+import Toc from "../../components/GrammarToc.astro";
+import { getCollection } from "astro:content";
+import { u } from "../../lib/util";
+const pages = (await getCollection("gramatica")).sort((a, b) => a.data.orde - b.data.orde);
+---
+<Base title="Gramática">
+  <div class="gram">
+    <Toc />
+    <section class="stack" style="gap:24px">
+      <div class="big-hello"><span class="eyebrow">Gramática do departamento</span><h1>Todo o que vemos, nun só sitio.</h1></div>
+      <p class="muted prose">A mesma explicación serve para todos os cursos. Cada unidade das materias liga co punto que lle toca.</p>
+      <div class="grid">
+        {pages.map((p) => (
+          <a href={u(`/gramatica/${p.id}`)} class="card hover stack-sm" style="gap:6px">
+            <span class="eyebrow">{p.data.seccion}</span><h3>{p.data.titulo}</h3>
+          </a>
+        ))}
+      </div>
+    </section>
+  </div>
+</Base>

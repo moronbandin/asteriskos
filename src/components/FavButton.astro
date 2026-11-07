@@ -1,0 +1,10 @@
+---
+// Corazón para gardar no navegador (sen conta). O script está en Base.astro
+interface Props { id: string; title: string; href: string; kind: string; where?: string }
+const { id, title, href, kind, where = "" } = Astro.props;
+import Icon from "./Icon.astro";
+---
+<button type="button" class="iconbtn fav" data-fav={id} data-title={title} data-href={href} data-kind={kind} data-where={where}
+  aria-pressed="false" aria-label={`Gardar «${title}»`}>
+  <span class="off"><Icon name="heart" /></span><span class="on" hidden><Icon name="heart" fill /></span>
+</button>

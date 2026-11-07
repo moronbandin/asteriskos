@@ -1,0 +1,31 @@
+---
+import Icon from "./Icon.astro";
+import FavButton from "./FavButton.astro";
+import { TIPOS } from "../content.config";
+import { isExternal, recursoHref } from "../lib/util";
+interface Props {
+  r: { tipo: keyof typeof TIPOS; titulo: string; url?: string; gramatica?: string; descricion?: string };
+  id: string; color?: string; where?: string;
+}
+const { r, id, color, where } = Astro.props;
+const href = recursoHref(r);
+const ext = isExternal(href);
+const label = TIPOS[r.tipo];
+---
+<div class={`item ${color ? "c-" + color : ""}`}>
+  <span class="kind"><Icon name={r.tipo} /></span>
+  <div class="min0">
+    {href ? (
+      <a href={href} {...(ext ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+        <div class="t">{r.titulo}{ext && <span class="muted"> ↗</span>}</div>
+        <div class="d">{label}{r.descricion ? `. ${r.descricion}` : ""}</div>
+      </a>
+    ) : (
+      <>
+        <div class="t">{r.titulo}</div>
+        <div class="d">{label}{r.descricion ? `. ${r.descricion}` : ""}</div>
+      </>
+    )}
+  </div>
+  <div class="actions">{href && <FavButton id={id} title={r.titulo} href={href} kind={r.tipo} where={where} />}</div>
+</div>

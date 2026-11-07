@@ -1,0 +1,25 @@
+---
+import Base from "../../layouts/Base.astro";
+import Icon from "../../components/Icon.astro";
+import { getCollection, render } from "astro:content";
+import { u, materias, dataCurta } from "../../lib/util";
+export async function getStaticPaths() {
+  return (await getCollection("avisos")).map((a) => ({ params: { id: a.id }, props: { a } }));
+}
+const { a } = Astro.props;
+const { Content } = await render(a);
+const byId = new Map((await materias()).map((m) => [m.id, m]));
+---
+<Base title={a.data.titulo}>
+  <article class="stack" style="gap:20px;max-width:720px">
+    <a href={u("/avisos")} class="small muted" style="font-weight:600">← Avisos</a>
+    <div class="row" style="gap:8px">
+      {a.data.etiqueta && <span class="pill">{a.data.etiqueta}</span>}
+      {a.data.grupos.map((g) => byId.get(g) && <span class={`pill c-${byId.get(g)!.data.cor}`}>{byId.get(g)!.data.nome}</span>)}
+      <span class="small muted">{dataCurta(a.data.data)}</span>
+    </div>
+    <h1 style="font-size:clamp(32px,6vw,48px)">{a.data.titulo}</h1>
+    <div class="prose"><Content /></div>
+    {a.data.ligazon && <a href={a.data.ligazon} target="_blank" rel="noopener noreferrer" class="btn accent" style="align-self:flex-start">Abrir <Icon name="out" size={16} /></a>}
+  </article>
+</Base>

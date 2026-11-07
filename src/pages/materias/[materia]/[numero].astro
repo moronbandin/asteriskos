@@ -1,0 +1,63 @@
+---
+import Base from "../../../layouts/Base.astro";
+import ResourceItem from "../../../components/ResourceItem.astro";
+import { getCollection, render } from "astro:content";
+import { u, materias } from "../../../lib/util";
+import { TIPOS } from "../../../content.config";
+
+export async function getStaticPaths() {
+  const mats = await materias();
+  const us = await getCollection("unidades");
+  return us.flatMap((x) => {
+    const m = mats.find((mm) => mm.id === x.data.materia);
+    return m ? [{ params: { materia: m.id, numero: String(x.data.numero) }, props: { m, x } }] : [];
+  });
+}
+const { m, x } = Astro.props;
+const { Content } = await render(x);
+const tipos = [...new Set(x.data.recursos.map((r) => r.tipo))];
+---
+<Base title={`${x.data.titulo} · ${m.data.nome}`}>
+  <div class={`stack c-${m.data.cor}`} style="gap:24px">
+    <a href={u(`/materias/${m.id}`)} class="small muted" style="font-weight:600">← {m.data.nome}</a>
+    <div class="hero">
+      <span class="small" style="font-weight:700">{m.data.nome}, unidade {x.data.numero}</span>
+      <h1>{x.data.titulo}</h1>
+      {x.body?.trim() && <div class="prose" style="color:var(--ink);opacity:.85"><Content /></div>}
+    </div>
+
+    {tipos.length > 1 && (
+      <nav class="chips" aria-label="Filtrar por tipo" data-chips>
+        <a href="#" aria-current="true" data-k="">Todo</a>
+        {tipos.map((k) => <a href={`#${k}`} data-k={k}>{TIPOS[k]}</a>)}
+      </nav>
+    )}
+
+    {x.data.recursos.length === 0 ? <div class="empty">Aínda non hai materiais nesta unidade.</div> : (
+      <div class="card" style="padding-block:6px">
+        <div class="list">
+          {x.data.recursos.map((r, i) => (
+            <div data-kind={r.tipo}>
+              <ResourceItem r={r} id={`${x.id}#${i}`} color={m.data.cor} where={`${m.data.nome}, unidade ${x.data.numero}`} />
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+    <p class="tiny muted">Toca o corazón para gardar un material. Queda gardado neste dispositivo.</p>
+  </div>
+  <script>
+    const chips = document.querySelector("[data-chips]");
+    function apply() {
+      const k = location.hash.slice(1);
+      chips?.querySelectorAll<HTMLAnchorElement>("a").forEach((a) => a.setAttribute("aria-current", String((a.dataset.k || "") === k)));
+      document.querySelectorAll<HTMLElement>("[data-kind]").forEach((el) => (el.hidden = !!k && el.dataset.kind !== k));
+    }
+    chips?.addEventListener("click", (e) => {
+      const a = (e.target as HTMLElement).closest<HTMLAnchorElement>("a");
+      if (!a) return; e.preventDefault();
+      history.replaceState(null, "", a.dataset.k ? "#" + a.dataset.k : location.pathname); apply();
+    });
+    apply();
+  </script>
+</Base>

@@ -1,0 +1,209 @@
+# Panel de edición de Pages CMS (https://app.pagescms.org)
+# Entras coa conta de GitHub, escolles o repositorio "asteriskos" e editas en formularios.
+# Ao gardar, a web publícase soa en 1-2 minutos.
+
+content:
+  - name: avisos
+    label: Avisos
+    type: collection
+    path: src/content/avisos
+    filename: "{year}-{month}-{day}-{primary}.md"
+    view:
+      fields: [titulo, data, etiqueta]
+      primary: titulo
+      sort: [data]
+      default: { sort: data, order: desc }
+    fields:
+      - { name: titulo, label: Título, type: string, required: true }
+      - { name: data, label: Data, type: date, required: true }
+      - name: grupos
+        label: Para que grupos (baleiro = todo o departamento)
+        type: select
+        options: &grupos
+          multiple: true
+          values:
+            - { name: latin-4, label: Latín 4.º ESO }
+            - { name: latin-1, label: Latín I }
+            - { name: latin-2, label: Latín II }
+            - { name: grego-2, label: Grego II }
+      - { name: etiqueta, label: Etiqueta (opcional), type: string }
+      - { name: fixado, label: Fixar arriba, type: boolean }
+      - { name: ligazon, label: Ligazón (opcional), type: string }
+      - { name: body, label: Texto, type: rich-text }
+
+  - name: deberes
+    label: Deberes
+    type: collection
+    path: src/content/deberes
+    filename: "{year}-{month}-{day}-{primary}.md"
+    view:
+      fields: [titulo, data]
+      primary: titulo
+      default: { sort: data, order: desc }
+    fields:
+      - { name: titulo, label: Que hai que facer, type: string, required: true }
+      - name: grupos
+        label: Para que grupos
+        type: select
+        required: true
+        options: *grupos
+      - { name: data, label: Para cando, type: date }
+      - { name: ligazon, label: "Ligazón ao material (Drive, Palaestra… ou /gramatica/terceira-declinacion)", type: string }
+      - { name: body, label: Detalles (opcional), type: text }
+
+  - name: unidades
+    label: Unidades e materiais
+    type: collection
+    path: src/content/unidades
+    filename: "{fields.materia}-{fields.numero}.md"
+    view:
+      fields: [materia, numero, titulo, estado]
+      primary: titulo
+    fields:
+      - name: materia
+        label: Materia
+        type: select
+        required: true
+        options:
+          values:
+            - { name: latin-4, label: Latín 4.º ESO }
+            - { name: latin-1, label: Latín I }
+            - { name: latin-2, label: Latín II }
+            - { name: grego-2, label: Grego II }
+      - { name: numero, label: Número, type: number, required: true }
+      - { name: titulo, label: Título, type: string, required: true }
+      - name: estado
+        label: Estado
+        type: select
+        options:
+          values:
+            - { name: proxima, label: Próxima }
+            - { name: agora, label: Agora }
+            - { name: vista, label: Vista }
+      - name: recursos
+        label: Materiais
+        type: object
+        list: true
+        fields:
+          - name: tipo
+            label: Tipo
+            type: select
+            options:
+              values:
+                - { name: apuntamentos, label: Apuntamentos }
+                - { name: ficha, label: Ficha }
+                - { name: ampliacion, label: Ampliación }
+                - { name: texto, label: Texto }
+                - { name: video, label: Vídeo }
+                - { name: cuestionario, label: Cuestionario }
+                - { name: ligazon, label: Ligazón }
+          - { name: titulo, label: Título, type: string }
+          - { name: url, label: "Ligazón (Drive, YouTube…)", type: string }
+          - { name: gramatica, label: "Ou punto da gramática (p. ex. terceira-declinacion)", type: string }
+          - { name: descricion, label: Descrición curta, type: string }
+      - { name: body, label: Presentación da unidade (opcional), type: rich-text }
+
+  - name: gramatica
+    label: Gramática
+    type: collection
+    path: src/content/gramatica
+    view:
+      fields: [titulo, seccion, orde]
+      primary: titulo
+    fields:
+      - { name: titulo, label: Título, type: string, required: true }
+      - name: seccion
+        label: Sección
+        type: select
+        options:
+          values: [Fonética, Nomes e adxectivos, Pronomes, Verbo, Sintaxe, Grego]
+      - { name: orde, label: Orde no índice, type: number }
+      - { name: usado, label: "Onde se ve (p. ex. Latín I, U3)", type: string, list: true }
+      - { name: body, label: Explicación, type: rich-text }
+
+  - name: foros
+    label: Foros (Padlet ou formulario)
+    type: collection
+    path: src/content/foros
+    filename: "{year}-{month}-{day}-{primary}.md"
+    fields:
+      - { name: titulo, label: Pregunta, type: string, required: true }
+      - name: grupos
+        label: Para que grupos
+        type: select
+        options: *grupos
+      - { name: data, label: Data, type: date, required: true }
+      - { name: ligazon, label: Ligazón ao Padlet ou formulario, type: string, required: true }
+      - { name: aberto, label: Aberto, type: boolean, default: true }
+      - { name: body, label: Instrucións (opcional), type: text }
+
+  - name: saidas
+    label: Viaxe e saídas
+    type: collection
+    path: src/content/saidas
+    fields:
+      - { name: titulo, label: Nome, type: string, required: true }
+      - name: tipo
+        label: Tipo
+        type: select
+        options:
+          values:
+            - { name: saida, label: Saída }
+            - { name: viaxe, label: Viaxe de estudos }
+      - { name: cando, label: Cando, type: string }
+      - { name: para, label: Para quen, type: string }
+      - { name: orde, label: Orde, type: number }
+      - { name: body, label: Información, type: rich-text }
+
+  - name: materias
+    label: Materias
+    type: collection
+    path: src/content/materias
+    fields:
+      - { name: nome, label: Nome, type: string, required: true }
+      - { name: curso, label: Curso, type: string, required: true }
+      - name: cor
+        label: Cor
+        type: select
+        options:
+          values:
+            - { name: blue, label: Azul }
+            - { name: pink, label: Rosa }
+            - { name: mint, label: Verde }
+            - { name: lilac, label: Lila }
+            - { name: sun, label: Amarelo }
+      - { name: orde, label: Orde, type: number }
+      - { name: sigla, label: Sigla grande, type: string }
+      - { name: descricion, label: Descrición, type: string }
+      - { name: body, label: Información da materia (opcional), type: rich-text }
+
+  - name: biblioteca
+    label: Biblioteca
+    type: file
+    path: src/data/biblioteca.json
+    format: json
+    fields:
+      - name: ligazons
+        label: Ligazóns
+        type: object
+        list: true
+        fields:
+          - { name: categoria, label: Categoría, type: string }
+          - { name: titulo, label: Título, type: string }
+          - { name: descricion, label: Descrición, type: string }
+          - { name: url, label: Enderezo, type: string }
+
+  - name: sitio
+    label: Axustes do sitio
+    type: file
+    path: src/data/sitio.json
+    format: json
+    fields:
+      - { name: nome, label: Nome, type: string }
+      - { name: departamento, label: Departamento, type: string }
+      - { name: centro, label: Centro (pode ir baleiro), type: string }
+      - { name: curso, label: Curso académico, type: string }
+      - { name: calendario, label: "Ligazón para inserir o Google Calendar (src)", type: string }
+      - { name: palaestra, label: Ligazón a Palaestra, type: string }
+      - { name: pau, label: Ligazón á web da PAU, type: string }
+      - { name: contacto, label: Contacto, type: string }

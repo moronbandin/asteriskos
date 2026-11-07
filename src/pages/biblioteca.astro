@@ -1,0 +1,24 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import data from "../data/biblioteca.json";
+const cats = [...new Set(data.ligazons.map((l) => l.categoria))];
+---
+<Base title="Biblioteca">
+  <div class="stack" style="gap:32px">
+    <div class="big-hello"><span class="eyebrow">Biblioteca</span><h1>Para buscar e ler máis.</h1></div>
+    {cats.map((c) => (
+      <section class="stack-sm">
+        <h2>{c}</h2>
+        <div class="grid">
+          {data.ligazons.filter((l) => l.categoria === c).map((l) => (
+            <a href={l.url} target="_blank" rel="noopener noreferrer" class="card hover row" style="flex-wrap:nowrap;align-items:flex-start;gap:14px">
+              <span class="kind"><Icon name="ligazon" /></span>
+              <span class="min0"><b style="display:block">{l.titulo} <span class="muted">↗</span></b>{l.descricion && <span class="small muted">{l.descricion}</span>}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</Base>

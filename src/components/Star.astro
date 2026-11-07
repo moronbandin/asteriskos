@@ -1,0 +1,10 @@
+---
+// O asterisco (ἀστερίσκος) dos filólogos de Alexandría
+interface Props { size?: number }
+const { size = 22 } = Astro.props;
+---
+<svg class="star" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+  <g stroke="currentColor" stroke-width="3.2" stroke-linecap="round">
+    <path d="M12 2.5v19" /><path d="M3.8 7.25l16.4 9.5" /><path d="M3.8 16.75l16.4-9.5" />
+  </g>
+</svg>

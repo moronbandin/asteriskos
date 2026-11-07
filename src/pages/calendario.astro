@@ -1,0 +1,17 @@
+---
+import Base from "../layouts/Base.astro";
+import sitio from "../data/sitio.json";
+---
+<Base title="Calendario">
+  <div class="stack" style="gap:24px">
+    <div class="big-hello"><span class="eyebrow">Calendario</span><h1>Exames, entregas e saídas.</h1></div>
+    {sitio.calendario ? (
+      <div class="calendar"><iframe src={sitio.calendario} title="Calendario do departamento" loading="lazy"></iframe></div>
+    ) : (
+      <div class="empty stack-sm" style="text-align:left">
+        <b style="color:var(--ink)">O calendario aínda non está conectado.</b>
+        <span class="small">Cando se pegue a ligazón dun Google Calendar público en <span class="mono">src/data/sitio.json</span> («calendario»), aparecerá aquí.</span>
+      </div>
+    )}
+  </div>
+</Base>

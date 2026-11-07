@@ -1,0 +1,10 @@
+{
+  "ligazons": [
+    { "categoria": "Os nosos proxectos", "titulo": "Palaestra", "descricion": "Practica latín e grego xogando, desde o móbil", "url": "https://palaestra-eta.vercel.app" },
+    { "categoria": "Dicionarios", "titulo": "Logeion", "descricion": "Latín e grego nun só buscador", "url": "https://logeion.uchicago.edu" },
+    { "categoria": "Dicionarios", "titulo": "Gaffiot", "descricion": "Dicionario latín–francés dixitalizado", "url": "https://gaffiot.org" },
+    { "categoria": "Textos", "titulo": "The Latin Library", "descricion": "Textos latinos completos", "url": "https://www.thelatinlibrary.com" },
+    { "categoria": "Textos", "titulo": "Perseus", "descricion": "Textos gregos e latinos con análise de cada palabra", "url": "https://www.perseus.tufts.edu" },
+    { "categoria": "Textos", "titulo": "Dickinson College Commentaries", "descricion": "Textos comentados con vocabulario", "url": "https://dcc.dickinson.edu" }
+  ]
+}

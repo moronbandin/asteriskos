@@ -1,0 +1,202 @@
+---
+import "../styles/global.css";
+import Star from "../components/Star.astro";
+import Icon from "../components/Icon.astro";
+import sitio from "../data/sitio.json";
+import { u } from "../lib/util";
+
+interface Props { title?: string; description?: string }
+const { title, description = `${sitio.departamento}${sitio.centro ? ", " + sitio.centro : ""}` } = Astro.props;
+const path = Astro.url.pathname.replace(import.meta.env.BASE_URL.replace(/\/$/, ""), "") || "/";
+const on = (href: string) => (href === "/" ? path === "/" || path === "" : path.startsWith(href)) ? "page" : undefined;
+
+const TOP = [
+  ["/", "Inicio"], ["/materias", "Materias"], ["/avisos", "Avisos"], ["/gramatica", "Gramática"],
+  ["/calendario", "Calendario"], ["/biblioteca", "Biblioteca"], ["/saidas", "Viaxe e saídas"],
+];
+const BOTTOM = [
+  ["/", "Inicio", "home"], ["/materias", "Materias", "folder"], ["/avisos", "Avisos", "bell"],
+  ["/gramatica", "Gramática", "book"], ["/gardado", "Gardado", "heart"],
+];
+---
+<!doctype html>
+<html lang="gl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{title ? `${title} — asteriskos` : "asteriskos"}</title>
+  <meta name="description" content={description} />
+  <meta name="theme-color" content="#F4F4F6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0E0E11" media="(prefers-color-scheme: dark)" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="asteriskos" />
+  <link rel="icon" href={u("/favicon.svg")} type="image/svg+xml" />
+  <link rel="apple-touch-icon" href={u("/favicon.svg")} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Geist:wght@400..700&display=swap" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap inner">
+      <a href={u("/")} class="logo" aria-label="asteriskos, inicio"><Star />asteriskos</a>
+      <nav class="topnav" aria-label="Seccións">
+        {TOP.map(([href, label]) => <a href={u(href)} aria-current={on(href)}>{label}</a>)}
+      </nav>
+      <div class="me">
+        <a href={u("/gardado")} class="iconbtn" aria-label="Gardado" title="Gardado"><Icon name="heart" /></a>
+      </div>
+    </div>
+  </header>
+
+  <main class="page wrap"><slot /></main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <span>{sitio.departamento}{sitio.centro && `, ${sitio.centro}`}</span>
+      <span class="row" style="gap:16px">
+        <a href={u("/calendario")}>Calendario</a>
+        <a href={u("/biblioteca")}>Biblioteca</a>
+        <a href={u("/saidas")}>Viaxe e saídas</a>
+      </span>
+    </div>
+  </footer>
+
+  <nav class="bottomnav" aria-label="Seccións">
+    {BOTTOM.map(([href, label, icon]) => (
+      <a href={u(href)} aria-current={on(href)}><Icon name={icon} size={24} />{label}</a>
+    ))}
+  </nav>
+
+  <script>
+    // Todo o que é "persoal" (gardado, feito, o meu grupo) vive só no navegador de cada quen.
+    const read = <T,>(k: string, d: T): T => { try { return JSON.parse(localStorage.getItem(k) || "") ?? d; } catch { return d; } };
+    const write = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+    type Fav = { title: string; href: string; kind: string; where: string; t: number };
+    const FAVS = "ast:favs", DONE = "ast:done", GROUP = "ast:grupo";
+
+    /* ── Gardado ── */
+    function paintFavs() {
+      const favs = read<Record<string, Fav>>(FAVS, {});
+      document.querySelectorAll<HTMLButtonElement>("[data-fav]").forEach((b) => {
+        const has = !!favs[b.dataset.fav!];
+        b.setAttribute("aria-pressed", String(has));
+        b.classList.toggle("on", has);
+        b.querySelector<HTMLElement>(".on")!.hidden = !has;
+        b.querySelector<HTMLElement>(".off")!.hidden = has;
+      });
+      const list = document.querySelector<HTMLElement>("[data-saved-list]");
+      if (list) {
+        const items = Object.entries(favs).sort((a, b) => b[1].t - a[1].t);
+        const empty = document.querySelector<HTMLElement>("[data-saved-empty]");
+        if (empty) empty.hidden = items.length > 0;
+        list.hidden = items.length === 0;
+        list.querySelector(".list")!.innerHTML = items.map(([id, f]) => `
+          <div class="item">
+            <span class="kind" aria-hidden="true">${document.querySelector(`template[data-icon="${f.kind}"]`)?.innerHTML ?? ""}</span>
+            <div class="min0"><a href="${f.href}" ${/^https?:/.test(f.href) ? 'target="_blank" rel="noopener"' : ""}>
+              <div class="t"></div><div class="d"></div></a></div>
+            <div class="actions"><button type="button" class="iconbtn on" data-unfav="${id}" aria-label="Quitar">✕</button></div>
+          </div>`).join("");
+        list.querySelectorAll(".item").forEach((el, i) => {
+          el.querySelector(".t")!.textContent = items[i][1].title;
+          el.querySelector(".d")!.textContent = items[i][1].where;
+        });
+      }
+    }
+    document.addEventListener("click", (e) => {
+      const t = e.target as HTMLElement;
+      const fav = t.closest<HTMLButtonElement>("[data-fav]");
+      if (fav) {
+        const favs = read<Record<string, Fav>>(FAVS, {});
+        const id = fav.dataset.fav!;
+        if (favs[id]) delete favs[id];
+        else favs[id] = { title: fav.dataset.title!, href: fav.dataset.href!, kind: fav.dataset.kind!, where: fav.dataset.where || "", t: Date.now() };
+        write(FAVS, favs); paintFavs(); return;
+      }
+      const un = t.closest<HTMLButtonElement>("[data-unfav]");
+      if (un) { const favs = read<Record<string, Fav>>(FAVS, {}); delete favs[un.dataset.unfav!]; write(FAVS, favs); paintFavs(); return; }
+
+      const done = t.closest<HTMLButtonElement>("[data-done]");
+      if (done) {
+        const set = new Set(read<string[]>(DONE, []));
+        const id = done.dataset.done!;
+        set.has(id) ? set.delete(id) : set.add(id);
+        write(DONE, [...set]); paintTasks(); return;
+      }
+      const g = t.closest<HTMLButtonElement>("[data-mygroup]");
+      if (g) {
+        const cur = read<string>(GROUP, "");
+        write(GROUP, cur === g.dataset.mygroup ? "" : g.dataset.mygroup); paintGroup(); paintTasks(); return;
+      }
+      const past = t.closest<HTMLButtonElement>("[data-toggle-past]");
+      if (past) { past.closest("[data-tasks-box]")?.classList.toggle("show-past"); past.textContent = past.textContent === "Ver as pasadas" ? "Ocultar as pasadas" : "Ver as pasadas"; }
+    });
+
+    /* ── Deberes ── */
+    function dueLabel(diff: number, d: string) {
+      if (diff === 0) return "Para hoxe";
+      if (diff === 1) return "Para mañá";
+      if (diff > 1 && diff < 7) return `En ${diff} días`;
+      if (diff === -1) return "Era onte";
+      if (diff < -1) return `Pasou hai ${-diff} días`;
+      const [, m, day] = d.split("-").map(Number);
+      return `Para o ${day} ${["xan","feb","mar","abr","mai","xuñ","xul","ago","set","out","nov","dec"][m - 1]}`;
+    }
+    function paintTasks() {
+      const done = new Set(read<string[]>(DONE, []));
+      const mine = read<string>(GROUP, "");
+      const today = new Date(); today.setHours(12, 0, 0, 0);
+      document.querySelectorAll<HTMLElement>("[data-tasks]").forEach((list) => {
+        const onlyMine = list.closest("[data-filter-mine]") && mine;
+        let visible = 0;
+        list.querySelectorAll<HTMLElement>("[data-task]").forEach((el) => {
+          const isDone = done.has(el.dataset.task!);
+          el.classList.toggle("done", isDone);
+          const btn = el.querySelector<HTMLElement>("[data-done]")!;
+          btn.classList.toggle("on", isDone); btn.setAttribute("aria-pressed", String(isDone));
+          const due = el.dataset.due;
+          const label = el.querySelector<HTMLElement>("[data-due-label]")!;
+          let isPast = false;
+          if (due) {
+            const diff = Math.round((new Date(due + "T12:00:00").getTime() - today.getTime()) / 86400000);
+            label.textContent = dueLabel(diff, due);
+            label.classList.toggle("soon", diff <= 1 && diff >= 0 && !isDone);
+            label.classList.toggle("muted", !(diff <= 1 && diff >= 0 && !isDone));
+            isPast = diff < -2 || (diff < 0 && isDone);
+          } else label.textContent = "Sen data";
+          const outOfGroup = onlyMine && !(el.dataset.groups || "").split(" ").includes(mine);
+          el.toggleAttribute("data-past", isPast);
+          el.hidden = !!outOfGroup;
+          if (!isPast && !outOfGroup) visible++;
+        });
+        const empty = list.querySelector<HTMLElement>("[data-empty]");
+        if (empty) empty.hidden = visible > 0;
+      });
+      document.querySelectorAll<HTMLElement>("[data-pending-count]").forEach((el) => {
+        const n = [...document.querySelectorAll<HTMLElement>("[data-filter-mine] [data-task]")]
+          .filter((t) => !t.hidden && !t.hasAttribute("data-past") && !done.has(t.dataset.task!)).length;
+        el.textContent = n === 0 ? "Non tes nada pendente." : n === 1 ? "Tes unha cousa pendente." : `Tes ${n} cousas pendentes.`;
+      });
+    }
+
+    /* ── O meu grupo ── */
+    function paintGroup() {
+      const mine = read<string>(GROUP, "");
+      document.querySelectorAll<HTMLButtonElement>("[data-mygroup]").forEach((b) => {
+        const is = b.dataset.mygroup === mine;
+        b.setAttribute("aria-pressed", String(is));
+        b.textContent = is ? "✓ O meu grupo" : "Este é o meu grupo";
+      });
+      document.querySelectorAll<HTMLElement>("[data-group-card]").forEach((c) => c.classList.toggle("is-mine", c.dataset.groupCard === mine));
+      document.querySelectorAll<HTMLElement>("[data-mine-name]").forEach((el) => {
+        const card = document.querySelector<HTMLElement>(`[data-group-card="${mine}"]`);
+        el.textContent = mine && card ? `Só ${card.dataset.groupName}` : "Todos os grupos";
+      });
+    }
+
+    paintFavs(); paintGroup(); paintTasks();
+  </script>
+</body>
+</html>

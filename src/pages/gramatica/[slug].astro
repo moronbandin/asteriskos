@@ -1,0 +1,29 @@
+---
+import Base from "../../layouts/Base.astro";
+import Toc from "../../components/GrammarToc.astro";
+import FavButton from "../../components/FavButton.astro";
+import { getCollection, render } from "astro:content";
+import sitio from "../../data/sitio.json";
+import { u } from "../../lib/util";
+export async function getStaticPaths() {
+  return (await getCollection("gramatica")).map((p) => ({ params: { slug: p.id }, props: { p } }));
+}
+const { p } = Astro.props;
+const { Content } = await render(p);
+---
+<Base title={p.data.titulo}>
+  <div class="gram">
+    <Toc current={p.id} />
+    <article class="stack" style="gap:20px;min-width:0">
+      <div class="row between" style="align-items:flex-start;flex-wrap:nowrap">
+        <div class="big-hello"><span class="eyebrow">{p.data.seccion}</span><h1>{p.data.titulo}</h1></div>
+        <FavButton id={`gramatica/${p.id}`} title={p.data.titulo} href={u(`/gramatica/${p.id}`)} kind="apuntamentos" where="Gramática" />
+      </div>
+      {p.data.usado.length > 0 && (
+        <div class="row" style="gap:6px"><span class="small muted">Vémolo en</span>{p.data.usado.map((x) => <span class="pill line">{x}</span>)}</div>
+      )}
+      <div class="prose tablewrap"><Content /></div>
+      {sitio.palaestra && <div><a href={sitio.palaestra} target="_blank" rel="noopener noreferrer" class="btn accent">Practicar en Palaestra</a></div>}
+    </article>
+  </div>
+</Base>

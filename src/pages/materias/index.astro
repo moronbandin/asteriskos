@@ -1,0 +1,29 @@
+---
+import Base from "../../layouts/Base.astro";
+import { u, materias, unidades, sigla } from "../../lib/util";
+const mats = await materias();
+const prog = new Map(await Promise.all(mats.map(async (m) => {
+  const us = await unidades(m.id);
+  return [m.id, { total: us.length, vistas: us.filter((x) => x.data.estado === "vista").length }] as const;
+})));
+---
+<Base title="Materias">
+  <div class="stack" style="gap:28px">
+    <div class="big-hello"><span class="eyebrow">Materias</span><h1>Escolle a túa.</h1></div>
+    <div class="grid">
+      {mats.map((m) => {
+        const p = prog.get(m.id)!;
+        return (
+          <a href={u(`/materias/${m.id}`)} class={`subject-card hover c-${m.data.cor}`} data-group-card={m.id} data-group-name={m.data.nome}>
+            <span class="code">{sigla(m)}</span>
+            <div><h3>{m.data.nome}</h3><span class="meta">{m.data.curso}</span></div>
+            <div class="stack-sm" style="gap:6px;margin-top:auto">
+              <span class="meta">{p.vistas} de {p.total} unidades vistas</span>
+              <div class="bar"><i style={`width:${p.total ? (p.vistas / p.total) * 100 : 0}%`} /></div>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</Base>

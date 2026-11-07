@@ -1,0 +1,20 @@
+---
+import { getCollection } from "astro:content";
+import { u } from "../lib/util";
+interface Props { current?: string }
+const { current } = Astro.props;
+const ORDE = ["Fonética", "Nomes e adxectivos", "Pronomes", "Verbo", "Sintaxe", "Grego"];
+const pages = (await getCollection("gramatica")).sort((a, b) => a.data.orde - b.data.orde);
+const secs = [...ORDE, ...new Set(pages.map((p) => p.data.seccion).filter((s) => !ORDE.includes(s)))];
+---
+<nav class="toc" aria-label="Índice da gramática">
+  {secs.map((s) => {
+    const ps = pages.filter((p) => p.data.seccion === s);
+    return ps.length > 0 && (
+      <div>
+        <span class="eyebrow">{s}</span>
+        <ol>{ps.map((p) => <li><a href={u(`/gramatica/${p.id}`)} aria-current={p.id === current ? "page" : undefined}>{p.data.titulo}</a></li>)}</ol>
+      </div>
+    );
+  })}
+</nav>
