@@ -31,6 +31,39 @@ content:
       - { name: ligazon, label: Ligazón (opcional), type: string }
       - { name: body, label: Texto, type: rich-text }
 
+  - name: lecturas
+    label: Lecturas e textos
+    type: collection
+    path: src/content/lecturas
+    filename: "{primary}.md"
+    view:
+      fields: [titulo, autor, materia, seccion]
+      primary: titulo
+    fields:
+      - { name: titulo, label: Título, type: string, required: true }
+      - { name: autor, label: Autor (opcional), type: string }
+      - name: materia
+        label: Materia
+        type: select
+        required: true
+        options:
+          values:
+            - { name: latin-4, label: Latín 4.º ESO }
+            - { name: latin-1, label: Latín I }
+            - { name: latin-2, label: Latín II }
+            - { name: grego-2, label: Grego II }
+      - name: seccion
+        label: Sección
+        type: select
+        options:
+          values:
+            - { name: lecturas, label: Lecturas }
+            - { name: textos, label: Textos }
+            - { name: recursos, label: Outros recursos }
+      - { name: ligazon, label: "Ligazón ao Drive (Compartir → Calquera persoa coa ligazón → Copiar)", type: string, required: true }
+      - { name: orde, label: Orde (opcional; os números baixos van primeiro), type: number }
+      - { name: body, label: Descrición curta (opcional), type: text }
+
   - name: deberes
     label: Deberes
     type: collection
@@ -160,23 +193,6 @@ content:
       - { name: orde, label: Orde, type: number }
       - { name: sigla, label: Sigla grande, type: string }
       - { name: descricion, label: Descrición, type: string }
-      - name: biblioteca
-        label: Lecturas, textos e recursos de todo o curso
-        type: object
-        list: true
-        fields:
-          - name: seccion
-            label: Sección
-            type: select
-            options:
-              values:
-                - { name: lecturas, label: Lecturas }
-                - { name: textos, label: Textos }
-                - { name: recursos, label: Outros recursos }
-          - { name: titulo, label: Título, type: string }
-          - { name: autor, label: Autor (opcional), type: string }
-          - { name: url, label: "Ligazón (Drive: Compartir → Calquera persoa coa ligazón)", type: string }
-          - { name: descricion, label: Descrición curta, type: string }
       - { name: body, label: Información da materia (opcional), type: rich-text }
 
   - name: biblioteca
@@ -205,7 +221,7 @@ content:
       - { name: departamento, label: Departamento, type: string }
       - { name: centro, label: Centro (pode ir baleiro), type: string }
       - { name: curso, label: Curso académico, type: string }
-      - { name: calendario, label: "Ligazón para inserir o Google Calendar (src)", type: string }
+      - { name: calendario, label: "Calendario: ID do Google Calendar público (p. ex. nome@gmail.com ou …@group.calendar.google.com)", type: string }
       - { name: palaestra, label: Ligazón a Palaestra, type: string }
       - { name: pau, label: Ligazón á web da PAU, type: string }
       - { name: contacto, label: Contacto, type: string }

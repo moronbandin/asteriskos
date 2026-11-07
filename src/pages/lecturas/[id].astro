@@ -1,0 +1,27 @@
+---
+// Lector: amosa a lectura (PDF do Drive) dentro da web
+import Base from "../../layouts/Base.astro";
+import { getCollection, render } from "astro:content";
+import { u, materias, drivePreview } from "../../lib/util";
+export async function getStaticPaths() {
+  return (await getCollection("lecturas")).map((l) => ({ params: { id: l.id }, props: { l } }));
+}
+const { l } = Astro.props;
+const m = (await materias()).find((x) => x.id === l.data.materia);
+const src = drivePreview(l.data.ligazon);
+const { Content } = await render(l);
+---
+<Base title={l.data.titulo}>
+  <article class={`stack ${m ? "c-" + m.data.cor : ""}`} style="gap:18px">
+    {m && <a href={u(`/materias/${m.id}#lecturas`)} class="back">← {m.data.nome}</a>}
+    <header class="stack-sm" style="gap:6px">
+      <span class="eyebrow">{m?.data.nome}</span>
+      <h1><i>{l.data.titulo}</i>{l.data.autor && <span class="byline">{l.data.autor}</span>}</h1>
+      {l.body?.trim() && <div class="lede"><Content /></div>}
+      <a href={l.data.ligazon} target="_blank" rel="noopener noreferrer" class="textlink">Abrir no Drive ↗</a>
+    </header>
+    {src
+      ? <div class="embed"><iframe src={src} title={l.data.titulo} allow="autoplay" loading="lazy"></iframe></div>
+      : <p><a href={l.data.ligazon} target="_blank" rel="noopener noreferrer" class="btn">Abrir a lectura ↗</a></p>}
+  </article>
+</Base>

@@ -1,9 +1,10 @@
 ---
 import Base from "../layouts/Base.astro";
 import TaskList from "../components/TaskList.astro";
-import Icon from "../components/Icon.astro";
+import EventList from "../components/EventList.astro";
 import { render } from "astro:content";
 import sitio from "../data/sitio.json";
+import { eventos } from "../lib/calendar";
 import { u, isExternal, materias, avisos, deberes, unidades, dataCurta, sigla } from "../lib/util";
 
 const mats = await materias();
@@ -12,46 +13,43 @@ const tasks = await deberes();
 const feed = (await avisos()).sort((a, b) => Number(b.data.fixado) - Number(a.data.fixado)).slice(0, 6);
 const rendered = await Promise.all(feed.map(async (a) => (await render(a)).Content));
 const agora = new Map(await Promise.all(mats.map(async (m) => [m.id, (await unidades(m.id)).find((x) => x.data.estado === "agora")] as const)));
+const proximas = (await eventos()).eventos.slice(0, 5);
 ---
 <Base>
   <div class="split">
-    <section class="stack" style="gap:28px">
-      <div class="big-hello">
+    <section class="stack" style="gap:40px">
+      <header class="pagehead">
         <span class="eyebrow">{sitio.departamento}</span>
         <h1>Salve<span style="color:var(--mark)">!</span></h1>
-        <p class="muted" data-pending-count>Avisos, deberes e materiais de Latín e Grego.</p>
-      </div>
+        <p class="lede" data-pending-count>Avisos, deberes e materiais de Latín e Grego.</p>
+      </header>
 
       <div class="card stack-sm" data-filter-mine data-tasks-box>
+        <div class="row between"><h2>Deberes</h2><span class="pill line" data-mine-name>Todos os grupos</span></div>
+        {tasks.length === 0 ? <p class="empty">Aínda non hai deberes.</p> : <TaskList items={tasks} mats={byId} />}
         <div class="row between">
-          <h2>Deberes</h2>
-          <span class="pill line" data-mine-name>Todos os grupos</span>
-        </div>
-        {tasks.length === 0
-          ? <p class="muted small">Aínda non hai deberes.</p>
-          : <TaskList items={tasks} mats={byId} />}
-        <div class="row between">
-          <span class="tiny muted">Escolle o teu grupo na súa páxina e aquí verás só os teus.</span>
+          <span class="tiny muted">Pulsa «Este é o meu grupo» na páxina da túa materia e aquí verás só os teus.</span>
           <button type="button" class="btn sm line" data-toggle-past>Ver as pasadas</button>
         </div>
       </div>
 
       <div class="stack-sm">
-        <div class="row between"><h2>Avisos</h2><a href={u("/avisos")} class="small muted">Ver todos →</a></div>
+        <div class="section-title"><h2>Avisos</h2><a href={u("/avisos")} class="small muted">Todos os avisos →</a></div>
         <div class="feed">
           {feed.map((a, i) => {
             const C = rendered[i];
+            const href = a.data.ligazon && (isExternal(a.data.ligazon) ? a.data.ligazon : u(a.data.ligazon));
             return (
-              <article class={`post-card ${a.data.fixado ? "pinned" : ""}`}>
-                <div class="row" style="gap:8px">
-                  {a.data.fixado && <span class="pill accent">Fixado</span>}
-                  {a.data.etiqueta && <span class="pill">{a.data.etiqueta}</span>}
-                  {a.data.grupos.map((g) => byId.get(g) && <span class={`pill c-${byId.get(g)!.data.cor}`}>{byId.get(g)!.data.nome}</span>)}
+              <article class="post-card">
+                <div class="row" style="gap:12px">
                   <span class="tiny muted">{dataCurta(a.data.data)}</span>
+                  {a.data.fixado && <span class="pill accent">Fixado</span>}
+                  {a.data.grupos.map((g) => byId.get(g) && <span class={`pill c-${byId.get(g)!.data.cor}`}>{byId.get(g)!.data.nome}</span>)}
+                  {a.data.etiqueta && <span class="pill line">{a.data.etiqueta}</span>}
                 </div>
-                <h3 style="font-size:21px"><a href={u(`/avisos/${a.id}`)}>{a.data.titulo}</a></h3>
+                <h3><a href={u(`/avisos/${a.id}`)}>{a.data.titulo}</a></h3>
                 <div class="body"><C /></div>
-                {a.data.ligazon && <a href={isExternal(a.data.ligazon) ? a.data.ligazon : u(a.data.ligazon)} {...(isExternal(a.data.ligazon) ? { target: "_blank", rel: "noopener noreferrer" } : {})} class="btn sm line" style="align-self:flex-start">Abrir <Icon name="out" size={15} /></a>}
+                {href && <a href={href} class="textlink" {...(isExternal(href) ? { target: "_blank", rel: "noopener noreferrer" } : {})}>Abrir →</a>}
               </article>
             );
           })}
@@ -59,24 +57,36 @@ const agora = new Map(await Promise.all(mats.map(async (m) => [m.id, (await unid
       </div>
     </section>
 
-    <aside class="stack">
+    <aside class="stack" style="gap:40px">
       <div class="stack-sm">
-        <span class="eyebrow">Grupos {sitio.curso}</span>
-        {mats.map((m) => (
-          <a href={u(`/materias/${m.id}`)} class={`subject-card hover c-${m.data.cor}`} style="min-height:0;padding:18px;gap:6px"
-            data-group-card={m.id} data-group-name={m.data.nome}>
-            <div class="row between"><h3>{m.data.nome}</h3><span class="meta">{m.data.curso}</span></div>
-            <span class="small" style="color:var(--ink);opacity:.75">{agora.get(m.id) ? `Agora: ${agora.get(m.id)!.data.titulo}` : sigla(m)}</span>
-          </a>
-        ))}
+        <div class="section-title"><h2>Grupos</h2><span class="small muted">{sitio.curso}</span></div>
+        <nav class="grouplist">
+          {mats.map((m) => (
+            <a href={u(`/materias/${m.id}`)} class={`c-${m.data.cor}`} data-group-card={m.id} data-group-name={m.data.nome}>
+              <span class="code">{sigla(m)}</span>
+              <b>{m.data.nome}, {m.data.curso}</b>
+              <span class="sub">{agora.get(m.id) ? `Agora: ${agora.get(m.id)!.data.titulo}` : " "}</span>
+            </a>
+          ))}
+        </nav>
       </div>
-      <div class="card stack-sm">
-        <span class="eyebrow">Atallos</span>
-        {sitio.palaestra && <a class="row between" href={sitio.palaestra} target="_blank" rel="noopener noreferrer"><b>Palaestra</b><span class="muted small">practicar xogando ↗</span></a>}
-        {sitio.pau && <a class="row between" href={sitio.pau} target="_blank" rel="noopener noreferrer"><b>Web da PAU</b><span class="muted small">↗</span></a>}
-        <a class="row between" href={u("/calendario")}><b>Calendario</b><span class="muted small">→</span></a>
-        <a class="row between" href={u("/gramatica")}><b>Gramática</b><span class="muted small">→</span></a>
-        <a class="row between" href={u("/saidas")}><b>Viaxe e saídas</b><span class="muted small">→</span></a>
+
+      {proximas.length > 0 && (
+        <div class="stack-sm">
+          <div class="section-title"><h2>Próximas datas</h2><a href={u("/calendario")} class="small muted">Calendario →</a></div>
+          <EventList items={proximas} compact />
+        </div>
+      )}
+
+      <div class="stack-sm">
+        <div class="section-title"><h2>Atallos</h2></div>
+        <div class="list">
+          {sitio.palaestra && <a class="item" href={sitio.palaestra} target="_blank" rel="noopener noreferrer"><span></span><span class="t">Palaestra</span><span class="small muted">↗</span></a>}
+          {sitio.pau && <a class="item" href={sitio.pau} target="_blank" rel="noopener noreferrer"><span></span><span class="t">Web da PAU</span><span class="small muted">↗</span></a>}
+          <a class="item" href={u("/gramatica")}><span></span><span class="t">Gramática</span><span class="small muted">→</span></a>
+          <a class="item" href={u("/biblioteca")}><span></span><span class="t">Biblioteca</span><span class="small muted">→</span></a>
+          <a class="item" href={u("/saidas")}><span></span><span class="t">Viaxe e saídas</span><span class="small muted">→</span></a>
+        </div>
       </div>
     </aside>
   </div>

@@ -5,6 +5,9 @@ on:
   push:
     branches: [master, main]
   workflow_dispatch:
+  # Reconstrúe cada 3 horas para ler os eventos novos do calendario
+  schedule:
+    - cron: "17 */3 * * *"
 
 permissions:
   contents: read

@@ -19,11 +19,11 @@ const tipos = [...new Set(x.data.recursos.map((r) => r.tipo))];
 ---
 <Base title={`${x.data.titulo} · ${m.data.nome}`}>
   <div class={`stack c-${m.data.cor}`} style="gap:24px">
-    <a href={u(`/materias/${m.id}`)} class="small muted" style="font-weight:600">← {m.data.nome}</a>
+    <a href={u(`/materias/${m.id}`)} class="back">← {m.data.nome}</a>
     <div class="hero">
-      <span class="small" style="font-weight:700">{m.data.nome}, unidade {x.data.numero}</span>
+      <span class="eyebrow">{m.data.nome}, unidade {x.data.numero}</span>
       <h1>{x.data.titulo}</h1>
-      {x.body?.trim() && <div class="prose" style="color:var(--ink);opacity:.85"><Content /></div>}
+      {x.body?.trim() && <div class="lede"><Content /></div>}
     </div>
 
     {tipos.length > 1 && (

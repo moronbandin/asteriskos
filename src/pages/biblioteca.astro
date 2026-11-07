@@ -5,16 +5,17 @@ import data from "../data/biblioteca.json";
 const cats = [...new Set(data.ligazons.map((l) => l.categoria))];
 ---
 <Base title="Biblioteca">
-  <div class="stack" style="gap:32px">
+  <div class="stack" style="gap:36px;max-width:760px">
     <div class="big-hello"><span class="eyebrow">Biblioteca</span><h1>Para buscar e ler máis.</h1></div>
     {cats.map((c) => (
       <section class="stack-sm">
-        <h2>{c}</h2>
-        <div class="grid">
+        <div class="section-title"><h2>{c}</h2></div>
+        <div class="list">
           {data.ligazons.filter((l) => l.categoria === c).map((l) => (
-            <a href={l.url} target="_blank" rel="noopener noreferrer" class="card hover row" style="flex-wrap:nowrap;align-items:flex-start;gap:14px">
+            <a href={l.url} target="_blank" rel="noopener noreferrer" class="item">
               <span class="kind"><Icon name="ligazon" /></span>
-              <span class="min0"><b style="display:block">{l.titulo} <span class="muted">↗</span></b>{l.descricion && <span class="small muted">{l.descricion}</span>}</span>
+              <span class="min0"><span class="t" style="display:block">{l.titulo} <span class="muted">↗</span></span>{l.descricion && <span class="d" style="display:block">{l.descricion}</span>}</span>
+              <span></span>
             </a>
           ))}
         </div>

@@ -1,9 +1,9 @@
 ---
 import Base from "../../../layouts/Base.astro";
 import TaskList from "../../../components/TaskList.astro";
-import { render } from "astro:content";
 import Icon from "../../../components/Icon.astro";
 import FavButton from "../../../components/FavButton.astro";
+import { getCollection, render } from "astro:content";
 import { u, materias, avisos, deberes, unidades, dataCurta, ESTADO, SECCIONS, drivePreview, isExternal } from "../../../lib/util";
 
 export async function getStaticPaths() {
@@ -11,50 +11,52 @@ export async function getStaticPaths() {
   return mats.map((m) => ({ params: { materia: m.id }, props: { m } }));
 }
 const { m } = Astro.props;
-const mats = await materias();
-const byId = new Map(mats.map((x) => [x.id, x]));
-const [us, tasks, news] = await Promise.all([unidades(m.id), deberes(m.id), avisos(m.id)]);
+const byId = new Map((await materias()).map((x) => [x.id, x]));
+const [us, tasks, news, lects] = await Promise.all([
+  unidades(m.id), deberes(m.id), avisos(m.id),
+  getCollection("lecturas").then((l) => l.filter((x) => x.data.materia === m.id).sort((a, b) => a.data.orde - b.data.orde || a.data.titulo.localeCompare(b.data.titulo, "gl"))),
+]);
 const { Content } = await render(m);
-const bib = m.data.biblioteca.map((b, i) => ({ ...b, i, href: drivePreview(b.url) ? u(`/materias/${m.id}/ler/${i + 1}`) : b.url }));
-const seccions = (Object.keys(SECCIONS) as (keyof typeof SECCIONS)[]).filter((k) => bib.some((b) => b.seccion === k));
+const href = (l: (typeof lects)[number]) => (drivePreview(l.data.ligazon) ? u(`/lecturas/${l.id}`) : l.data.ligazon);
+const seccions = (Object.keys(SECCIONS) as (keyof typeof SECCIONS)[]).filter((k) => lects.some((l) => l.data.seccion === k));
+const ICON = { lecturas: "lectura", textos: "texto", recursos: "ligazon" } as const;
 ---
 <Base title={m.data.nome}>
-  <div class={`stack c-${m.data.cor}`} style="gap:28px">
-    <a href={u("/materias")} class="small muted" style="font-weight:600">← Materias</a>
-    <div class="hero">
+  <div class={`stack c-${m.data.cor}`} style="gap:36px">
+    <header class="hero">
       <div class="row between">
-        <span class="small" style="font-weight:700">{m.data.curso}</span>
-        <button type="button" class="btn sm line mygroup-btn" data-mygroup={m.id} aria-pressed="false" style="background:var(--card)">Este é o meu grupo</button>
+        <span class="eyebrow">{m.data.curso}</span>
+        <button type="button" class="btn sm line mygroup-btn" data-mygroup={m.id} aria-pressed="false">Este é o meu grupo</button>
       </div>
       <h1>{m.data.nome}</h1>
-      {m.data.descricion && <p style="color:var(--ink);opacity:.8;max-width:60ch">{m.data.descricion}</p>}
-    </div>
+      {m.data.descricion && <p class="lede">{m.data.descricion}</p>}
+    </header>
 
     <div class="split">
-      <section class="stack" style="gap:28px">
+      <section class="stack" style="gap:40px">
         <div class="card stack-sm" data-tasks-box>
           <div class="row between"><h2>Deberes</h2><button type="button" class="btn sm line" data-toggle-past>Ver as pasadas</button></div>
-          {tasks.length === 0 ? <p class="muted small">Agora mesmo non hai deberes.</p> : <TaskList items={tasks} mats={byId} showGroup={false} />}
+          {tasks.length === 0 ? <p class="empty">Agora mesmo non hai deberes.</p> : <TaskList items={tasks} mats={byId} showGroup={false} />}
         </div>
 
         {seccions.length > 0 && (
-          <div class="stack-sm" id="biblioteca">
-            <div class="section-title"><h2>Lecturas e textos</h2><span class="small muted">para todo o curso</span></div>
+          <div class="stack-sm" id="lecturas">
+            <div class="section-title"><h2>Lecturas e textos</h2></div>
             {seccions.map((k) => (
-              <div class="stack-sm">
-                {seccions.length > 1 && <span class="eyebrow">{SECCIONS[k]}</span>}
-                <div class="card" style="padding-block:6px"><div class="list">
-                  {bib.filter((b) => b.seccion === k).map((b) => (
+              <div class="stack-sm" style="gap:0">
+                {seccions.length > 1 && <span class="eyebrow" style="margin-top:14px">{SECCIONS[k]}</span>}
+                <div class="list">
+                  {lects.filter((l) => l.data.seccion === k).map((l) => (
                     <div class="item">
-                      <span class="kind"><Icon name={k === "lecturas" ? "lectura" : k === "textos" ? "texto" : "ligazon"} /></span>
-                      <a class="min0" href={b.href} {...(isExternal(b.href) ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
-                        <div class="t">{b.autor ? <><i>{b.titulo}</i>, {b.autor}</> : b.titulo}</div>
-                        {b.descricion && <div class="d">{b.descricion}</div>}
+                      <span class="kind"><Icon name={ICON[k]} /></span>
+                      <a class="min0" href={href(l)} {...(isExternal(href(l)) ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+                        <div class="t">{l.data.autor ? <><i>{l.data.titulo}</i>, {l.data.autor}</> : l.data.titulo}</div>
+                        {l.body?.trim() && <div class="d">{l.body.trim()}</div>}
                       </a>
-                      <div class="actions"><FavButton id={`${m.id}/bib/${b.i}`} title={b.titulo} href={b.href} kind="lectura" where={m.data.nome} /></div>
+                      <div class="actions"><FavButton id={`lecturas/${l.id}`} title={l.data.titulo} href={href(l)} kind="lectura" where={m.data.nome} /></div>
                     </div>
                   ))}
-                </div></div>
+                </div>
               </div>
             ))}
           </div>
@@ -62,32 +64,33 @@ const seccions = (Object.keys(SECCIONS) as (keyof typeof SECCIONS)[]).filter((k)
 
         <div class="stack-sm">
           <div class="section-title"><h2>Unidades</h2></div>
-          {us.length === 0 && <div class="empty">Aínda non hai unidades.</div>}
-          {us.map((x) => (
-            <a href={u(`/materias/${m.id}/${x.data.numero}`)} class="card tight hover row" style="flex-wrap:nowrap;gap:14px">
-              <span class="kind" style={x.data.estado === "agora" ? "background:var(--c-fg);color:var(--card)" : ""}>
-                <b style="font-family:var(--f-display);font-size:19px">{x.data.numero}</b>
-              </span>
-              <span class="min0" style="flex:1">
-                <b style="display:block;line-height:1.3">{x.data.titulo}</b>
-                <span class="small muted">{x.data.recursos.length} {x.data.recursos.length === 1 ? "material" : "materiais"}</span>
-              </span>
-              <span class={`pill ${x.data.estado === "agora" ? "" : "line"}`}>{ESTADO[x.data.estado]}</span>
-            </a>
-          ))}
+          {us.length === 0 && <p class="empty">Aínda non hai unidades.</p>}
+          <div class="units">
+            {us.map((x) => (
+              <a href={u(`/materias/${m.id}/${x.data.numero}`)} class={`unit ${x.data.estado}`}>
+                <span class="n">{x.data.numero}</span>
+                <span class="min0"><b>{x.data.titulo}</b>
+                  <span class="sub">{x.data.recursos.length === 0 ? "Sen materiais aínda" : `${x.data.recursos.length} ${x.data.recursos.length === 1 ? "material" : "materiais"}`}</span></span>
+                <span class={`pill ${x.data.estado === "agora" ? "" : "line"}`}>{ESTADO[x.data.estado]}</span>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
-      <aside class="stack">
-        {m.body?.trim() && <div class="card prose small"><Content /></div>}
+      <aside class="stack" style="gap:40px">
+        {m.body?.trim() && <div class="prose small"><Content /></div>}
         <div class="stack-sm">
-          <h2>Avisos</h2>
-          {news.length === 0 ? <p class="small muted">Sen avisos.</p> : news.slice(0, 5).map((a) => (
-            <a href={u(`/avisos/${a.id}`)} class="card tight hover stack-sm" style="gap:2px">
-              <span class="tiny muted">{dataCurta(a.data.data)}{a.data.grupos.length === 0 ? ", para todo o departamento" : ""}</span>
-              <b>{a.data.titulo}</b>
-            </a>
-          ))}
+          <div class="section-title"><h2>Avisos</h2></div>
+          {news.length === 0 ? <p class="empty">Sen avisos.</p> : (
+            <div class="list">
+              {news.slice(0, 6).map((a) => (
+                <a href={u(`/avisos/${a.id}`)} class="item" style="grid-template-columns:minmax(0,1fr)">
+                  <span class="min0"><span class="d" style="display:block;margin:0 0 2px">{dataCurta(a.data.data)}{a.data.grupos.length === 0 ? ", todo o departamento" : ""}</span><span class="t">{a.data.titulo}</span></span>
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </aside>
     </div>

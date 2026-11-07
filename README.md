@@ -15,6 +15,7 @@ src/content/avisos/      un ficheiro por aviso
 src/content/deberes/     un ficheiro por deber
 src/content/materias/    as catro materias (nome, curso, cor)
 src/content/unidades/    unha unidade por ficheiro, cos seus materiais
+src/content/lecturas/    lecturas, textos e recursos de cada materia
 src/content/gramatica/   un punto da gramática por ficheiro
 src/content/saidas/      viaxe e saídas
 src/data/sitio.json      axustes: nome do centro, curso, calendario, ligazóns
@@ -60,16 +61,7 @@ Para ligar un PDF do Drive: Compartir → «Calquera persoa coa ligazón» → C
 
 ### Lecturas e textos de cada materia
 
-Van no ficheiro da materia (`src/content/materias/latin-2.md`) ou no panel, en Materias → «Lecturas, textos e recursos». Se a ligazón é dun PDF do Drive, a web ábreo dentro dunha páxina propia.
-
-```yaml
-biblioteca:
-  - seccion: lecturas        # lecturas, textos ou recursos
-    titulo: Aulularia
-    autor: Plauto
-    url: https://drive.google.com/file/d/…/view
-    descricion: A comedia da ola do ouro.
-```
+No panel: **Lecturas e textos → Add an entry**. Título, autor, materia, sección (lecturas, textos ou outros recursos) e a ligazón ao Drive. Se é un PDF do Drive, a web ábreo dentro dunha páxina propia.
 
 ## Ver a web no teu ordenador
 
@@ -82,10 +74,9 @@ E abre http://localhost:4321/asteriskos
 
 ## Calendario
 
-1. En Google Calendar, co Gmail persoal, crea un calendario chamado «Asteriskos».
-2. Configuración do calendario → Permisos de acceso → **Facer dispoñible publicamente**.
-3. Máis abaixo, en **Integrar calendario**, copia o enderezo que vai dentro de `src="…"`.
-4. Pégao en `src/data/sitio.json`, en `"calendario"`, ou en Axustes do sitio no panel.
+A web le un Google Calendar **público** e debuxa as datas ela mesma (no inicio e en Calendario). Reconstrúese soa cada 3 horas; para velo ao momento: GitHub → Actions → Publicar → Run workflow.
+
+O ID do calendario vai en `src/data/sitio.json` («calendario») ou no panel, en Axustes do sitio. Para facer un calendario público: Google Calendar → Configuración do calendario → Permisos de acceso → «Facer dispoñible publicamente». O ID está máis abaixo, en «Integrar calendario».
 
 ## Se cambias de centro
 

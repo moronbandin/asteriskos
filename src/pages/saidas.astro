@@ -13,10 +13,10 @@ const saidas = all.filter((e) => e.data.tipo === "saida");
       const C = R.get(e.id)!;
       return (
         <section class="hero c-sun" style="gap:14px">
-          <span class="small" style="font-weight:700">Viaxe de estudos{e.data.cando ? `, ${e.data.cando}` : ""}</span>
+          <span class="eyebrow">Viaxe de estudos{e.data.cando ? `, ${e.data.cando}` : ""}</span>
           <h1>{e.data.titulo}</h1>
-          {e.data.para && <span class="pill" style="align-self:flex-start;background:var(--card);color:var(--ink)">{e.data.para}</span>}
-          <div class="prose" style="color:var(--ink)"><C /></div>
+          {e.data.para && <span class="pill">{e.data.para}</span>}
+          <div class="prose"><C /></div>
         </section>
       );
     })}

@@ -1,17 +1,28 @@
 ---
 import Base from "../layouts/Base.astro";
-import sitio from "../data/sitio.json";
+import EventList from "../components/EventList.astro";
+import { eventos, mesClave } from "../lib/calendar";
+const { eventos: evs, erro } = await eventos();
+const meses: { nome: string; items: typeof evs }[] = [];
+for (const e of evs) {
+  const { clave, nome } = mesClave(e);
+  const last = meses[meses.length - 1];
+  if (last && (last as any).clave === clave) last.items.push(e);
+  else meses.push(Object.assign({ nome, items: [e] }, { clave }));
+}
 ---
 <Base title="Calendario">
-  <div class="stack" style="gap:24px">
-    <div class="big-hello"><span class="eyebrow">Calendario</span><h1>Exames, entregas e saídas.</h1></div>
-    {sitio.calendario ? (
-      <div class="calendar"><iframe src={sitio.calendario} title="Calendario do departamento" loading="lazy"></iframe></div>
-    ) : (
-      <div class="empty stack-sm" style="text-align:left">
-        <b style="color:var(--ink)">O calendario aínda non está conectado.</b>
-        <span class="small">Cando se pegue a ligazón dun Google Calendar público en <span class="mono">src/data/sitio.json</span> («calendario»), aparecerá aquí.</span>
-      </div>
-    )}
+  <div class="stack" style="gap:28px;max-width:760px">
+    <header class="pagehead"><span class="eyebrow">Calendario</span><h1>Exames, entregas e saídas</h1></header>
+    {erro === "non-publico" && <p class="notice">Non se puido ler o calendario. Comproba que está marcado como público en Google Calendar.</p>}
+    {erro === "sen-calendario" && <p class="notice">Aínda non hai ningún calendario conectado.</p>}
+    {!erro && evs.length === 0 && <p class="muted">Non hai nada anotado nos próximos meses.</p>}
+    {meses.map((m) => (
+      <section class="stack-sm">
+        <h2 class="month">{m.nome}</h2>
+        <EventList items={m.items} />
+      </section>
+    ))}
+    <p class="tiny muted">Actualízase só cada poucas horas a partir do calendario do departamento.</p>
   </div>
 </Base>

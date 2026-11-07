@@ -27,14 +27,6 @@ export const collections = {
       orde: z.number().default(0),
       sigla: z.string().optional(),
       descricion: z.string().optional(),
-      // Lecturas, textos e recursos de toda a materia (non dunha unidade concreta)
-      biblioteca: z.array(z.object({
-        seccion: z.enum(["lecturas", "textos", "recursos"]).default("recursos"),
-        titulo: z.string(),
-        autor: z.string().optional(),
-        url: z.string(),
-        descricion: z.string().optional(),
-      })).default([]),
     }),
   }),
 
@@ -84,6 +76,19 @@ export const collections = {
       seccion: z.string().default("Outros"),
       orde: z.number().default(99),
       usado: z.array(z.string()).default([]),
+    }),
+  }),
+
+  // Lecturas, textos e recursos de cada materia: un ficheiro por cada un
+  lecturas: defineCollection({
+    loader: md("lecturas"),
+    schema: z.object({
+      titulo: z.string(),
+      autor: z.string().optional(),
+      materia: z.string(),
+      seccion: z.enum(["lecturas", "textos", "recursos"]).default("lecturas"),
+      ligazon: z.string(),
+      orde: z.number().default(0),
     }),
   }),
 

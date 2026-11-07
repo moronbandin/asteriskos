@@ -1,0 +1,25 @@
+---
+// Lista de datas do calendario. O que xa pasou ocúltase tamén no navegador.
+import { dia, hora, finLocal, type Evento } from "../lib/calendar";
+interface Props { items: Evento[]; compact?: boolean }
+const { items, compact = false } = Astro.props;
+---
+<ol class={`agenda ${compact ? "compact" : ""}`} data-agenda>
+  {items.map((e) => {
+    const d = dia(e);
+    return (
+      <li class="ev" data-end={finLocal(e)}>
+        <span class="ev-date" aria-hidden="true"><b>{d.num}</b><span>{compact ? d.mes : d.semana}</span></span>
+        <div class="min0">
+          <div class="ev-title">{e.titulo}</div>
+          <div class="ev-meta">{hora(e)}{e.lugar && <>, {e.lugar}</>}</div>
+          {!compact && e.descricion && <p class="ev-desc">{e.descricion.length > 220 ? e.descricion.slice(0, 220) + "…" : e.descricion}</p>}
+        </div>
+      </li>
+    );
+  })}
+</ol>
+<script>
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Madrid" });
+  document.querySelectorAll<HTMLElement>("[data-agenda] [data-end]").forEach((el) => { if (el.dataset.end! < today) el.hidden = true; });
+</script>
