@@ -94,6 +94,7 @@ content:
                 - { name: ficha, label: Ficha }
                 - { name: ampliacion, label: Ampliación }
                 - { name: texto, label: Texto }
+                - { name: lectura, label: Lectura }
                 - { name: video, label: Vídeo }
                 - { name: cuestionario, label: Cuestionario }
                 - { name: ligazon, label: Ligazón }
@@ -120,22 +121,6 @@ content:
       - { name: orde, label: Orde no índice, type: number }
       - { name: usado, label: "Onde se ve (p. ex. Latín I, U3)", type: string, list: true }
       - { name: body, label: Explicación, type: rich-text }
-
-  - name: foros
-    label: Foros (Padlet ou formulario)
-    type: collection
-    path: src/content/foros
-    filename: "{year}-{month}-{day}-{primary}.md"
-    fields:
-      - { name: titulo, label: Pregunta, type: string, required: true }
-      - name: grupos
-        label: Para que grupos
-        type: select
-        options: *grupos
-      - { name: data, label: Data, type: date, required: true }
-      - { name: ligazon, label: Ligazón ao Padlet ou formulario, type: string, required: true }
-      - { name: aberto, label: Aberto, type: boolean, default: true }
-      - { name: body, label: Instrucións (opcional), type: text }
 
   - name: saidas
     label: Viaxe e saídas
@@ -175,6 +160,23 @@ content:
       - { name: orde, label: Orde, type: number }
       - { name: sigla, label: Sigla grande, type: string }
       - { name: descricion, label: Descrición, type: string }
+      - name: biblioteca
+        label: Lecturas, textos e recursos de todo o curso
+        type: object
+        list: true
+        fields:
+          - name: seccion
+            label: Sección
+            type: select
+            options:
+              values:
+                - { name: lecturas, label: Lecturas }
+                - { name: textos, label: Textos }
+                - { name: recursos, label: Outros recursos }
+          - { name: titulo, label: Título, type: string }
+          - { name: autor, label: Autor (opcional), type: string }
+          - { name: url, label: "Ligazón (Drive: Compartir → Calquera persoa coa ligazón)", type: string }
+          - { name: descricion, label: Descrición curta, type: string }
       - { name: body, label: Información da materia (opcional), type: rich-text }
 
   - name: biblioteca

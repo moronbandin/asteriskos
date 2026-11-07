@@ -2,7 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import Icon from "../../components/Icon.astro";
 import { getCollection, render } from "astro:content";
-import { u, materias, dataCurta } from "../../lib/util";
+import { u, isExternal, materias, dataCurta } from "../../lib/util";
 export async function getStaticPaths() {
   return (await getCollection("avisos")).map((a) => ({ params: { id: a.id }, props: { a } }));
 }
@@ -20,6 +20,6 @@ const byId = new Map((await materias()).map((m) => [m.id, m]));
     </div>
     <h1 style="font-size:clamp(32px,6vw,48px)">{a.data.titulo}</h1>
     <div class="prose"><Content /></div>
-    {a.data.ligazon && <a href={a.data.ligazon} target="_blank" rel="noopener noreferrer" class="btn accent" style="align-self:flex-start">Abrir <Icon name="out" size={16} /></a>}
+    {a.data.ligazon && <a href={isExternal(a.data.ligazon) ? a.data.ligazon : u(a.data.ligazon)} {...(isExternal(a.data.ligazon) ? { target: "_blank", rel: "noopener noreferrer" } : {})} class="btn accent" style="align-self:flex-start">Abrir <Icon name="out" size={16} /></a>}
   </article>
 </Base>

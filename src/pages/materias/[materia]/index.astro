@@ -1,8 +1,10 @@
 ---
 import Base from "../../../layouts/Base.astro";
 import TaskList from "../../../components/TaskList.astro";
-import { getCollection, render } from "astro:content";
-import { u, materias, avisos, deberes, unidades, dataCurta, ESTADO } from "../../../lib/util";
+import { render } from "astro:content";
+import Icon from "../../../components/Icon.astro";
+import FavButton from "../../../components/FavButton.astro";
+import { u, materias, avisos, deberes, unidades, dataCurta, ESTADO, SECCIONS, drivePreview, isExternal } from "../../../lib/util";
 
 export async function getStaticPaths() {
   const mats = await materias();
@@ -11,11 +13,10 @@ export async function getStaticPaths() {
 const { m } = Astro.props;
 const mats = await materias();
 const byId = new Map(mats.map((x) => [x.id, x]));
-const [us, tasks, news, foros] = await Promise.all([
-  unidades(m.id), deberes(m.id), avisos(m.id),
-  getCollection("foros").then((f) => f.filter((x) => x.data.grupos.includes(m.id)).sort((a, b) => +b.data.data - +a.data.data)),
-]);
+const [us, tasks, news] = await Promise.all([unidades(m.id), deberes(m.id), avisos(m.id)]);
 const { Content } = await render(m);
+const bib = m.data.biblioteca.map((b, i) => ({ ...b, i, href: drivePreview(b.url) ? u(`/materias/${m.id}/ler/${i + 1}`) : b.url }));
+const seccions = (Object.keys(SECCIONS) as (keyof typeof SECCIONS)[]).filter((k) => bib.some((b) => b.seccion === k));
 ---
 <Base title={m.data.nome}>
   <div class={`stack c-${m.data.cor}`} style="gap:28px">
@@ -36,8 +37,31 @@ const { Content } = await render(m);
           {tasks.length === 0 ? <p class="muted small">Agora mesmo non hai deberes.</p> : <TaskList items={tasks} mats={byId} showGroup={false} />}
         </div>
 
+        {seccions.length > 0 && (
+          <div class="stack-sm" id="biblioteca">
+            <div class="section-title"><h2>Lecturas e textos</h2><span class="small muted">para todo o curso</span></div>
+            {seccions.map((k) => (
+              <div class="stack-sm">
+                {seccions.length > 1 && <span class="eyebrow">{SECCIONS[k]}</span>}
+                <div class="card" style="padding-block:6px"><div class="list">
+                  {bib.filter((b) => b.seccion === k).map((b) => (
+                    <div class="item">
+                      <span class="kind"><Icon name={k === "lecturas" ? "lectura" : k === "textos" ? "texto" : "ligazon"} /></span>
+                      <a class="min0" href={b.href} {...(isExternal(b.href) ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+                        <div class="t">{b.autor ? <><i>{b.titulo}</i>, {b.autor}</> : b.titulo}</div>
+                        {b.descricion && <div class="d">{b.descricion}</div>}
+                      </a>
+                      <div class="actions"><FavButton id={`${m.id}/bib/${b.i}`} title={b.titulo} href={b.href} kind="lectura" where={m.data.nome} /></div>
+                    </div>
+                  ))}
+                </div></div>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div class="stack-sm">
-          <h2>Unidades</h2>
+          <div class="section-title"><h2>Unidades</h2></div>
           {us.length === 0 && <div class="empty">Aínda non hai unidades.</div>}
           {us.map((x) => (
             <a href={u(`/materias/${m.id}/${x.data.numero}`)} class="card tight hover row" style="flex-wrap:nowrap;gap:14px">
@@ -56,18 +80,6 @@ const { Content } = await render(m);
 
       <aside class="stack">
         {m.body?.trim() && <div class="card prose small"><Content /></div>}
-        {foros.length > 0 && (
-          <div class="stack-sm">
-            <h2>Para opinar</h2>
-            {foros.map((f) => (
-              <a href={f.data.ligazon} target="_blank" rel="noopener noreferrer" class="card tight hover stack-sm" style="gap:4px">
-                <div class="row" style="gap:6px">{!f.data.aberto && <span class="pill line">Pechado</span>}<span class="tiny muted">{dataCurta(f.data.data)}</span></div>
-                <b>{f.data.titulo} <span class="muted">↗</span></b>
-                {f.body?.trim() && <span class="small muted">{f.body.trim()}</span>}
-              </a>
-            ))}
-          </div>
-        )}
         <div class="stack-sm">
           <h2>Avisos</h2>
           {news.length === 0 ? <p class="small muted">Sen avisos.</p> : news.slice(0, 5).map((a) => (

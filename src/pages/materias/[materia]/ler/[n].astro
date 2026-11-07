@@ -1,0 +1,29 @@
+---
+// Lector: amosa un PDF do Drive dentro da web
+import Base from "../../../../layouts/Base.astro";
+import { u, materias, drivePreview } from "../../../../lib/util";
+export async function getStaticPaths() {
+  const mats = await materias();
+  return mats.flatMap((m) => m.data.biblioteca
+    .map((b, i) => ({ b, i }))
+    .filter(({ b }) => drivePreview(b.url))
+    .map(({ b, i }) => ({ params: { materia: m.id, n: String(i + 1) }, props: { m, b } })));
+}
+const { m, b } = Astro.props;
+const src = drivePreview(b.url)!;
+---
+<Base title={b.titulo}>
+  <div class={`stack c-${m.data.cor}`} style="gap:18px">
+    <a href={u(`/materias/${m.id}#biblioteca`)} class="small muted" style="font-weight:600">← {m.data.nome}</a>
+    <div class="row between" style="align-items:flex-end">
+      <div class="stack-sm" style="gap:4px">
+        <span class="eyebrow">{m.data.nome}</span>
+        <h1><i>{b.titulo}</i>{b.autor && <span style="font-style:normal">, {b.autor}</span>}</h1>
+        {b.descricion && <p class="muted">{b.descricion}</p>}
+      </div>
+      <a href={b.url} target="_blank" rel="noopener noreferrer" class="btn line">Abrir no Drive ↗</a>
+    </div>
+    <div class="embed"><iframe src={src} title={b.titulo} allow="autoplay" loading="lazy"></iframe></div>
+    <p class="tiny muted">Se non se ve, ábreo no Drive co botón de arriba.</p>
+  </div>
+</Base>

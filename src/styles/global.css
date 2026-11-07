@@ -1,54 +1,56 @@
 /* Asteriskos
-   Claro e limpo, tipografía grande e grosa, pílulas e tarxetas redondas,
-   unha cor por materia en ton pastel e un único acento laranxa: o asterisco.
-   Móbil primeiro, con barra de navegación inferior como nas apps.
+   Un blogue de aula: páxina branca, titulares cunha serifa de libro, texto moi lexible,
+   unha cor suave por materia e un azul lapislázuli para ligazóns e botóns.
+   Etiquetas tipo marbete de biblioteca, bordos finos, nada de brillos.
    Para cambiar unha cor, cambia só a variable de :root. */
 
 :root {
-  --bg: #F4F4F6;
+  --bg: #F5F6F8;
   --card: #FFFFFF;
-  --ink: #111115;
-  --muted: #6A6A75;
-  --line: #E3E3E9;
-  --soft: #EBEBEF;
-  --accent: #FF4D2E;
+  --ink: #1F2533;
+  --muted: #5F6676;
+  --line: #DFE2E8;
+  --soft: #EEF0F4;
+  --accent: #2F4FA2;
   --accent-ink: #FFFFFF;
-  --ok: #15803D;
-  --ok-soft: #DDF5E5;
+  --mark: #B3261E;
+  --ok: #2D7A46;
+  --ok-soft: #E1F1E6;
 
-  --blue-bg: #DCE6FF;   --blue-fg: #2443B5;
-  --pink-bg: #FFDDE7;   --pink-fg: #AD2150;
-  --mint-bg: #D4F2E1;   --mint-fg: #0F6E3C;
-  --lilac-bg: #E8DEFF;  --lilac-fg: #5A31AE;
-  --sun-bg: #FFEFB5;    --sun-fg: #855F00;
+  --blue-bg: #E6EDFB;   --blue-fg: #2F4FA2;
+  --pink-bg: #FBE9EC;   --pink-fg: #9C2F47;
+  --mint-bg: #E3F2EA;   --mint-fg: #2B6B48;
+  --lilac-bg: #EEE8F8;  --lilac-fg: #5B3E96;
+  --sun-bg: #FBF1D9;    --sun-fg: #7A5A12;
 
-  --f-display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
-  --f-body: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-display: "Literata", Georgia, "Times New Roman", serif;
+  --f-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  --r-lg: 24px;
-  --r-md: 16px;
-  --r-sm: 10px;
+  --r-lg: 12px;
+  --r-md: 10px;
+  --r-sm: 6px;
   --nav-h: 64px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0E0E11;
-    --card: #19191E;
-    --ink: #F3F3F6;
-    --muted: #9C9CA8;
-    --line: #2A2A32;
-    --soft: #222229;
-    --accent: #FF6A4D;
-    --accent-ink: #160805;
-    --ok: #4ADE80;
-    --ok-soft: #14301F;
+    --bg: #14171E;
+    --card: #1C2029;
+    --ink: #E8EAF0;
+    --muted: #A0A6B4;
+    --line: #2E3442;
+    --soft: #252A35;
+    --accent: #8FA8F0;
+    --accent-ink: #10172B;
+    --mark: #F08A80;
+    --ok: #7CC895;
+    --ok-soft: #1C3326;
 
-    --blue-bg: #1B2647;   --blue-fg: #A9BEFF;
-    --pink-bg: #3E1A27;   --pink-fg: #FFA8C2;
-    --mint-bg: #11331F;   --mint-fg: #86E0AE;
-    --lilac-bg: #2B2047;  --lilac-fg: #CBB6FF;
-    --sun-bg: #3A2F0D;    --sun-fg: #F5D36B;
+    --blue-bg: #1E2A44;   --blue-fg: #A9BDF5;
+    --pink-bg: #3A2129;   --pink-fg: #F1A9B8;
+    --mint-bg: #1C3328;   --mint-fg: #9AD6B1;
+    --lilac-bg: #2C2440;  --lilac-fg: #C9B6F0;
+    --sun-bg: #362C14;    --sun-fg: #E9CB7F;
     color-scheme: dark;
   }
 }
@@ -248,12 +250,6 @@ main.page { padding-block: 28px calc(var(--nav-h) + 48px + env(safe-area-inset-b
 .toc a:hover { background: var(--soft); }
 .toc a[aria-current="page"] { background: var(--ink); color: var(--bg); font-weight: 600; }
 
-/* foros */
-.bubble { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: start; }
-.bubble .say { background: var(--card); border: 1px solid var(--line); border-radius: 6px 18px 18px 18px; padding: 10px 14px; }
-.bubble.prof .say { background: var(--sun-bg); border-color: transparent; }
-.bubble.hidden .say { opacity: .5; border-style: dashed; }
-
 /* formularios */
 label.f { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; min-width: 0; }
 input[type=text], input[type=email], input[type=url], input[type=date], input[type=number], select, textarea {
@@ -305,3 +301,55 @@ details.adder > .inner { padding: 0 20px 20px; }
   main.page { padding-bottom: 32px; }
   .footer { padding-bottom: calc(var(--nav-h) + 32px + env(safe-area-inset-bottom, 0px)); }
 }
+
+
+/* ── capa "blogue de aula" ─────────────────────────── */
+body { font-size: 17px; line-height: 1.6; }
+h1 { font-size: clamp(30px, 5vw, 44px); font-weight: 600; line-height: 1.12; letter-spacing: -0.01em; }
+h2 { font-size: clamp(21px, 3.4vw, 25px); font-weight: 600; letter-spacing: 0; }
+h3 { font-size: 18.5px; font-weight: 600; letter-spacing: 0; }
+.eyebrow { font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.logo { font-family: var(--f-display); font-weight: 600; font-size: 22px; letter-spacing: 0; }
+.logo .star { color: var(--mark); }
+.logo small { font-family: var(--f-body); font-weight: 400; font-size: 13px; color: var(--muted); margin-left: 4px; }
+@media (max-width: 520px) { .logo small { display: none; } }
+.topbar { background: var(--card); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.topnav a { border-radius: var(--r-sm); font-weight: 400; }
+.topnav a[aria-current="page"] { box-shadow: none; background: var(--soft); font-weight: 700; }
+.bottomnav { background: var(--card); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.bottomnav a[aria-current="page"] svg { color: var(--accent); }
+
+.btn { border-radius: var(--r-sm); font-weight: 700; padding: 9px 16px; }
+.btn.accent { background: var(--accent); color: var(--accent-ink); }
+.btn.line { box-shadow: inset 0 0 0 1px var(--line); background: var(--card); }
+.pill { border-radius: 4px; font-weight: 700; font-size: 12px; letter-spacing: .02em; padding: 2px 8px; }
+.pill.accent { background: var(--mark); color: #fff; }
+.chips a { border-radius: var(--r-sm); font-weight: 400; }
+.chips a[aria-current="true"] { font-weight: 700; }
+.card, .post-card { box-shadow: 0 1px 2px rgba(20, 30, 50, .04); }
+.hover:hover { transform: none; border-color: var(--accent); }
+.post-card.pinned { border-color: var(--line); border-top: 3px solid var(--mark); }
+.post-card h3 { font-size: 22px !important; }
+.post-card .body { font-size: 16.5px; }
+.prose a, .post-card .body a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.prose { font-size: 17.5px; }
+.prose table td:first-child { font-family: var(--f-body); }
+.prose table strong { color: var(--mark); }
+
+.subject-card { border: 1px solid color-mix(in srgb, var(--c-fg) 18%, transparent); min-height: 160px; }
+.subject-card .code { font-family: var(--f-display); font-weight: 500; font-style: italic; font-size: 52px; letter-spacing: 0; }
+.subject-card .bar { height: 4px; }
+.hero { border: 1px solid color-mix(in srgb, var(--c-fg) 18%, transparent); padding: 28px 26px; }
+.hero h1 { font-size: clamp(30px, 5.5vw, 46px); }
+.kind { border-radius: var(--r-sm); }
+.due.soon { color: var(--mark); }
+.check { border-width: 1.5px; border-radius: 6px; }
+.check.on { background: var(--ok); }
+.empty { border-radius: var(--r-lg); }
+.toc a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); }
+.footer { background: var(--card); }
+
+/* lector de PDF do Drive */
+.embed { border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: var(--card); }
+.embed iframe { display: block; width: 100%; height: min(78vh, 900px); border: 0; }
+.section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 8px; }

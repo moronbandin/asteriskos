@@ -50,3 +50,11 @@ export function recursoHref(r: { url?: string; gramatica?: string }) {
 }
 
 export const ESTADO = { agora: "Agora", vista: "Vista", proxima: "Próxima" } as const;
+
+/** Se é un ficheiro do Drive, devolve o enderezo para lelo dentro da web */
+export function drivePreview(url: string) {
+  const m = url.match(/drive\.google\.com\/file\/d\/([^/?#]+)/);
+  return m ? `https://drive.google.com/file/d/${m[1]}/preview` : null;
+}
+
+export const SECCIONS = { lecturas: "Lecturas", textos: "Textos", recursos: "Outros recursos" } as const;

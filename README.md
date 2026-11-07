@@ -1,6 +1,6 @@
 # asteriskos
 
-Web do Departamento de Latín e Grego: avisos, deberes por grupo, materias e unidades con materiais, gramática, calendario, biblioteca, viaxe e saídas.
+Web do Departamento de Latín e Grego: avisos, deberes por grupo, materias con lecturas e textos, unidades con materiais, gramática, calendario, biblioteca, viaxe e saídas.
 
 É unha **web estática**: non hai contas, nin base de datos, nin servidor. Calquera abre a ligazón e le. O que é persoal (os materiais gardados co corazón, os deberes marcados como feitos e «o meu grupo») queda gardado no navegador de cada alumno.
 
@@ -16,7 +16,6 @@ src/content/deberes/     un ficheiro por deber
 src/content/materias/    as catro materias (nome, curso, cor)
 src/content/unidades/    unha unidade por ficheiro, cos seus materiais
 src/content/gramatica/   un punto da gramática por ficheiro
-src/content/foros/       temas para opinar (ligan a un Padlet ou formulario)
 src/content/saidas/      viaxe e saídas
 src/data/sitio.json      axustes: nome do centro, curso, calendario, ligazóns
 src/data/biblioteca.json ligazóns da biblioteca
@@ -59,6 +58,19 @@ Os grupos son: `latin-4`, `latin-1`, `latin-2` e `grego-2`. Un aviso sen grupos 
 
 Para ligar un PDF do Drive: Compartir → «Calquera persoa coa ligazón» → Copiar ligazón.
 
+### Lecturas e textos de cada materia
+
+Van no ficheiro da materia (`src/content/materias/latin-2.md`) ou no panel, en Materias → «Lecturas, textos e recursos». Se a ligazón é dun PDF do Drive, a web ábreo dentro dunha páxina propia.
+
+```yaml
+biblioteca:
+  - seccion: lecturas        # lecturas, textos ou recursos
+    titulo: Aulularia
+    autor: Plauto
+    url: https://drive.google.com/file/d/…/view
+    descricion: A comedia da ola do ouro.
+```
+
 ## Ver a web no teu ordenador
 
 ```
@@ -74,10 +86,6 @@ E abre http://localhost:4321/asteriskos
 2. Configuración do calendario → Permisos de acceso → **Facer dispoñible publicamente**.
 3. Máis abaixo, en **Integrar calendario**, copia o enderezo que vai dentro de `src="…"`.
 4. Pégao en `src/data/sitio.json`, en `"calendario"`, ou en Axustes do sitio no panel.
-
-## Foros
-
-A web non garda mensaxes. Para cada tema, crea un Padlet ou un formulario de Google e engádeo en Foros coa súa ligazón. Aparecerá na páxina da materia.
 
 ## Se cambias de centro
 

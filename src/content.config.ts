@@ -11,6 +11,7 @@ export const TIPOS = {
   ficha: "Ficha",
   ampliacion: "Ampliación",
   texto: "Texto",
+  lectura: "Lectura",
   video: "Vídeo",
   cuestionario: "Cuestionario",
   ligazon: "Ligazón",
@@ -26,6 +27,14 @@ export const collections = {
       orde: z.number().default(0),
       sigla: z.string().optional(),
       descricion: z.string().optional(),
+      // Lecturas, textos e recursos de toda a materia (non dunha unidade concreta)
+      biblioteca: z.array(z.object({
+        seccion: z.enum(["lecturas", "textos", "recursos"]).default("recursos"),
+        titulo: z.string(),
+        autor: z.string().optional(),
+        url: z.string(),
+        descricion: z.string().optional(),
+      })).default([]),
     }),
   }),
 
@@ -75,17 +84,6 @@ export const collections = {
       seccion: z.string().default("Outros"),
       orde: z.number().default(99),
       usado: z.array(z.string()).default([]),
-    }),
-  }),
-
-  foros: defineCollection({
-    loader: md("foros"),
-    schema: z.object({
-      titulo: z.string(),
-      grupos,
-      data: z.coerce.date(),
-      ligazon: z.string(),
-      aberto: z.boolean().default(true),
     }),
   }),
 

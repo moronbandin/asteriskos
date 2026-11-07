@@ -4,7 +4,7 @@ import TaskList from "../components/TaskList.astro";
 import Icon from "../components/Icon.astro";
 import { render } from "astro:content";
 import sitio from "../data/sitio.json";
-import { u, materias, avisos, deberes, unidades, dataCurta, sigla } from "../lib/util";
+import { u, isExternal, materias, avisos, deberes, unidades, dataCurta, sigla } from "../lib/util";
 
 const mats = await materias();
 const byId = new Map(mats.map((m) => [m.id, m]));
@@ -18,7 +18,7 @@ const agora = new Map(await Promise.all(mats.map(async (m) => [m.id, (await unid
     <section class="stack" style="gap:28px">
       <div class="big-hello">
         <span class="eyebrow">{sitio.departamento}</span>
-        <h1>Salve<span style="color:var(--accent)">!</span></h1>
+        <h1>Salve<span style="color:var(--mark)">!</span></h1>
         <p class="muted" data-pending-count>Avisos, deberes e materiais de Latín e Grego.</p>
       </div>
 
@@ -51,7 +51,7 @@ const agora = new Map(await Promise.all(mats.map(async (m) => [m.id, (await unid
                 </div>
                 <h3 style="font-size:21px"><a href={u(`/avisos/${a.id}`)}>{a.data.titulo}</a></h3>
                 <div class="body"><C /></div>
-                {a.data.ligazon && <a href={a.data.ligazon} target="_blank" rel="noopener noreferrer" class="btn sm line" style="align-self:flex-start">Abrir <Icon name="out" size={15} /></a>}
+                {a.data.ligazon && <a href={isExternal(a.data.ligazon) ? a.data.ligazon : u(a.data.ligazon)} {...(isExternal(a.data.ligazon) ? { target: "_blank", rel: "noopener noreferrer" } : {})} class="btn sm line" style="align-self:flex-start">Abrir <Icon name="out" size={15} /></a>}
               </article>
             );
           })}
